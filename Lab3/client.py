@@ -1,3 +1,4 @@
+import hashlib
 import random
 import socket
 import threading
@@ -86,11 +87,24 @@ class Client:
                 decrypted_text, char = divmod(decrypted_text, 256)
                 text += chr(char)
 
-            print(text)
+            idx = text.find(':')
+            if idx == -1:
+                print('Corrupted unreadable message received')
+            else:
+                msg_hash, msg = text[:idx], text[idx + 1:]
+                if msg_hash == hashlib.sha256(msg.encode()).hexdigest():
+                    print(msg)
+                else:
+                    print(f"Corrupted: {msg}")
 
     def write_handler(self):
         while True:
             text = input()
+
+            text_hash = hashlib.sha256(text.encode()).hexdigest()
+            text = f'{text_hash}:{text}'
+            print(text_hash)
+
             if not text.isascii():
                 print('It supports only ascii symbols')
                 continue
