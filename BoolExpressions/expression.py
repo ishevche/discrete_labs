@@ -187,6 +187,43 @@ class Expression:
               f'---+---+---+---+---\n'
               f' {t0} | {t1} | {s} | {m} | {l} ')
 
+    def complete_dnf(self):
+        """
+        Prints complete disjunctive normal function
+        """
+        result = ''
+        variables_amount = len(self.__variables)
+        for idx in range(len(self.__truth_table)):
+            if self.__truth_table[idx] == '1':
+                result += '('
+                for variable_idx, variable in enumerate(self.__variables):
+                    if idx >= 2 ** (variables_amount - variable_idx - 1):
+                        result += f'{variable}*'
+                        idx -= 2 ** (variables_amount - variable_idx - 1)
+                    else:
+                        result += f'~{variable}*'
+                result = result[:-1]
+                result += ') + '
+        print(result[:-2])
+
+    def complete_cnf(self):
+        """
+        Prints complete conjunctive normal function
+        """
+        result = ''
+        variables_amount = len(self.__variables)
+        for idx in range(len(self.__truth_table)):
+            if self.__truth_table[idx] == '0':
+                result += '('
+                for variable_idx, variable in enumerate(self.__variables):
+                    if idx >= 2 ** (variables_amount - variable_idx - 1):
+                        result += f'~'
+                        idx -= 2 ** (variables_amount - variable_idx - 1)
+                    result += f'{variable}+'
+                result = result[:-1]
+                result += ') * '
+        print(result[:-2])
+
     def __repr__(self):
         return self.__truth_table
 
