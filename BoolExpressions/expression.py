@@ -8,15 +8,15 @@ class Expression:
         print(x ^ y)
 
     Boolean operators:
-        not - ~ or -
-        or - | or +
-        and - & or *
-        xor - ^ or != or -
-        -> - >= or >
-        <- - <= or <
-        <=> - ==
-        Sheffer stroke - //
-        Peirce's arrow - %
+        not: ~ or -
+        or: | or +
+        and: & or *
+        xor: ^ or != or -
+        ->: >= or >
+        <-: <= or <
+        <=>: ==
+        Sheffer stroke: //
+        Peirce's arrow: %
     """
 
     def __init__(self, variables_name: str, truth_table: str = '01'):
@@ -62,37 +62,40 @@ class Expression:
                 truth_table += '0'
         return Expression(first.__variables, truth_table)
 
-    def print_saves_0(self) -> bool:
+    def print_saves_0(self, verbose=True) -> bool:
         """
         Prints info about belonging to a class that saves 0
         """
-        print(f'f = {self.__truth_table} => '
-              f'f({0:0{len(self.__variables)}}) '
-              f'{"!" if self.__truth_table[0] == "1" else ""}= 0\n'
-              f'T_0 {"-" if self.__truth_table[0] == "1" else "+"}')
+        if verbose:
+            print(f'f = {self.__truth_table} => '
+                  f'f({0:0{len(self.__variables)}}) '
+                  f'{"!" if self.__truth_table[0] == "1" else ""}= 0\n'
+                  f'T_0 {"-" if self.__truth_table[0] == "1" else "+"}')
         return self.__truth_table[0] == "0"
 
-    def print_saves_1(self) -> bool:
+    def print_saves_1(self, verbose=True) -> bool:
         """
         Prints info about belonging to a class that saves 1
         """
-        print(f'f = {self.__truth_table} => '
-              f'f({1:1<{len(self.__variables)}}) '
-              f'{"!" if self.__truth_table[-1] == "0" else ""}= 1\n'
-              f'T_1 {"-" if self.__truth_table[-1] == "0" else "+"}')
+        if verbose:
+            print(f'f = {self.__truth_table} => '
+                  f'f({1:1<{len(self.__variables)}}) '
+                  f'{"!" if self.__truth_table[-1] == "0" else ""}= 1\n'
+                  f'T_1 {"-" if self.__truth_table[-1] == "0" else "+"}')
         return self.__truth_table[-1] == "1"
 
-    def print_self_dual(self) -> bool:
+    def print_self_dual(self, verbose=True) -> bool:
         """
         Prints info about belonging to a class that is self-dual
         """
         invert_table = ''.join(list(map(lambda a: '1' if a == '0' else '0',
                                         self.__truth_table)))[::-1]
-        print(f'f = {self.__truth_table} => f* = {invert_table}\n'
-              f'S {"+" if self.__truth_table == invert_table else "-"}')
+        if verbose:
+            print(f'f = {self.__truth_table} => f* = {invert_table}\n'
+                  f'S {"+" if self.__truth_table == invert_table else "-"}')
         return self.__truth_table == invert_table
 
-    def print_monotonous(self) -> bool:
+    def print_monotonous(self, verbose=True) -> bool:
         """
         Prints info about belonging to a class that is monotonous
         """
@@ -111,17 +114,20 @@ class Expression:
                         is_idx0_grater = False
                         break
                 if is_idx0_grater:
-                    print(f'{idx0_bin} > {idx1_bin}, '
-                          f'0 = f({idx0_bin}) < f({idx1_bin}) = 1\n'
-                          f'M -')
+                    if verbose:
+                        print(f'{idx0_bin} > {idx1_bin}, '
+                              f'0 = f({idx0_bin}) < f({idx1_bin}) = 1\n'
+                              f'M -')
                     return False
-        print('M +')
+        if verbose:
+            print('M +')
         return True
 
-    def print_linear(self) -> bool:
+    def print_linear(self, verbose=True) -> bool:
         """
         Prints info about belonging to a class that is linear
         """
+
         def get_coefficients(table: str) -> str:
             if len(table) == 1:
                 return table
@@ -136,18 +142,21 @@ class Expression:
                     get_coefficients(xor_part))
 
         coefficients = get_coefficients(self.__truth_table)
-        print('f = ', end='')
+        if verbose:
+            print('f = ', end='')
         was_one = False
         is_linear = True
         for idx, value in enumerate(coefficients):
             if value == '0':
                 continue
             if idx == 0:
-                print(1, end='')
+                if verbose:
+                    print(1, end='')
                 was_one = True
                 continue
             if was_one:
-                print(' + ', end='')
+                if verbose:
+                    print(' + ', end='')
             idx_bin = f'{bin(idx)[2:]:0>{len(self.__variables)}}'
             var = ''
             for var_idx in range(len(self.__variables)):
@@ -155,27 +164,25 @@ class Expression:
                     var += self.__variables[var_idx]
             if len(var) > 1:
                 is_linear = False
-            print(var, end='')
+            if verbose:
+                print(var, end='')
             was_one = True
         if not was_one:
-            print(0, end='')
-        print(f'\nL {"+" if is_linear else "-"}')
+            if verbose:
+                print(0, end='')
+        if verbose:
+            print(f'\nL {"+" if is_linear else "-"}')
         return is_linear
 
-    def print_fullness(self):
+    def print_fullness(self, verbose=True):
         """
         Prints info about belonging to classes of boolean functions
         """
-        t0 = '+' if self.print_saves_0() else '-'
-        print()
-        t1 = '+' if self.print_saves_1() else '-'
-        print()
-        s = '+' if self.print_self_dual() else '-'
-        print()
-        m = '+' if self.print_monotonous() else '-'
-        print()
-        l = '+' if self.print_linear() else '-'
-        print()
+        t0 = '+' if self.print_saves_0(verbose) else '-'
+        t1 = '+' if self.print_saves_1(verbose) else '-'
+        s = '+' if self.print_self_dual(verbose) else '-'
+        m = '+' if self.print_monotonous(verbose) else '-'
+        l = '+' if self.print_linear(verbose) else '-'
         print(f' 0 | 1 | S | M | L \n'
               f'---+---+---+---+---\n'
               f' {t0} | {t1} | {s} | {m} | {l} ')
